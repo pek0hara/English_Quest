@@ -250,7 +250,7 @@ public class GameManager : MonoBehaviour
                     string currentText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
                     // Always use Japanese per user request
                     string questionText = currentRoundWords[card.originalIndex].japanese;
-                    card.SetText($"{currentText}\n({questionText})");
+                    card.SetText($"{currentText}\n{questionText}");
                 }
             }
         }
