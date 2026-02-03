@@ -23,9 +23,10 @@ public class GameManager : MonoBehaviour
     private float timer = 10f;
     private bool isTimerRunning = false;
 
-    private enum GameState { Memorize, Solve, Result }
+    private enum GameState { Memorize, Solve, Check1, Solve2, Result }
     private GameState currentState;
     private DraggableCard selectedSwapCard = null;
+    private int stage1Score = 0;
 
     void Start()
     {
@@ -171,12 +172,19 @@ public class GameManager : MonoBehaviour
             Image cardImage = card.GetComponent<Image>();
             if (cardImage != null) cardImage.color = Color.white; // Reset to default
         }
-        if (statusText != null) statusText.text = reverseMode ? "Arrange the Japanese words!" : "Arrange the English words!";
+        if (currentState == GameState.Solve2)
+        {
+            if (statusText != null) statusText.text = "Stage 2: Arrange again using hints!";
+        }
+        else
+        {
+            if (statusText != null) statusText.text = reverseMode ? "Arrange the Japanese words!" : "Arrange the English words!";
+        }
     }
 
     public void OnCardClicked(DraggableCard clickedCard)
     {
-        if (currentState != GameState.Solve) return;
+        if (currentState != GameState.Solve && currentState != GameState.Solve2) return;
 
         ResetFeedback();
 
@@ -222,42 +230,133 @@ public class GameManager : MonoBehaviour
 
     void CheckAnswer()
     {
-        if (currentState != GameState.Solve) return;
-
-        int correctCount = 0;
-
-        foreach (CardSlot slot in slots)
+        if (currentState == GameState.Solve)
         {
-            if (slot.transform.childCount > 0)
+            // Stage 1: Show results with problem and answer
+            int correctCount = 0;
+
+            foreach (CardSlot slot in slots)
             {
-                DraggableCard card = slot.transform.GetChild(0).GetComponent<DraggableCard>();
-                Image cardImage = card.GetComponent<Image>();
+                if (slot.transform.childCount > 0)
+                {
+                    DraggableCard card = slot.transform.GetChild(0).GetComponent<DraggableCard>();
+                    Image cardImage = card.GetComponent<Image>();
 
-                if (card != null && card.originalIndex == slot.slotIndex)
-                {
-                    correctCount++;
-                    // Optional: Visual feedback for correct cards
-                    if (cardImage != null) cardImage.color = Color.green;
-                }
-                else
-                {
-                    if (cardImage != null) cardImage.color = Color.red;
-                }
+                    if (card != null && card.originalIndex == slot.slotIndex)
+                    {
+                        correctCount++;
+                        if (cardImage != null) cardImage.color = Color.green;
+                    }
+                    else
+                    {
+                        if (cardImage != null) cardImage.color = Color.red;
+                    }
 
-                // Show original question below the answer
-                if (card != null)
-                {
-                    string currentText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
-                    // Always use Japanese per user request
-                    string questionText = currentRoundWords[card.originalIndex].japanese;
-                    card.SetText($"{currentText}\n({questionText})");
+                    // Show answer with original question below
+                    if (card != null)
+                    {
+                        string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
+                        string questionText = currentRoundWords[card.originalIndex].japanese;
+                        card.SetText($"{answerText}\n({questionText})");
+                    }
                 }
             }
+
+            stage1Score = correctCount;
+            currentState = GameState.Check1;
+            if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 15 Correct!  Press button to start Stage 2";
+
+            // Change button text to Stage 2
+            if (checkButton != null)
+            {
+                Text buttonText = checkButton.GetComponentInChildren<Text>();
+                if (buttonText != null) buttonText.text = "Start Stage 2";
+            }
+        }
+        else if (currentState == GameState.Check1)
+        {
+            // Transition to Stage 2
+            StartSolve2Phase();
+        }
+        else if (currentState == GameState.Solve2)
+        {
+            // Stage 2: Final check
+            int correctCount = 0;
+
+            foreach (CardSlot slot in slots)
+            {
+                if (slot.transform.childCount > 0)
+                {
+                    DraggableCard card = slot.transform.GetChild(0).GetComponent<DraggableCard>();
+                    Image cardImage = card.GetComponent<Image>();
+
+                    if (card != null && card.originalIndex == slot.slotIndex)
+                    {
+                        correctCount++;
+                        if (cardImage != null) cardImage.color = Color.green;
+                    }
+                    else
+                    {
+                        if (cardImage != null) cardImage.color = Color.red;
+                    }
+
+                    // Show answer with original question below
+                    if (card != null)
+                    {
+                        string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
+                        string questionText = currentRoundWords[card.originalIndex].japanese;
+                        card.SetText($"{answerText}\n({questionText})");
+                    }
+                }
+            }
+
+            currentState = GameState.Result;
+            if (statusText != null) statusText.text = $"Final: Stage1 {stage1Score}/15 → Stage2 {correctCount}/15";
+
+            // Change button text to Restart
+            if (checkButton != null)
+            {
+                Text buttonText = checkButton.GetComponentInChildren<Text>();
+                if (buttonText != null) buttonText.text = "Restart Game";
+            }
+        }
+        else if (currentState == GameState.Result)
+        {
+            // Restart the game
+            if (checkButton != null)
+            {
+                Text buttonText = checkButton.GetComponentInChildren<Text>();
+                if (buttonText != null) buttonText.text = "Check Answer";
+            }
+            InitializeGame();
+        }
+    }
+
+    void StartSolve2Phase()
+    {
+        currentState = GameState.Solve2;
+        if (statusText != null) statusText.text = "Stage 2: Arrange again using hints!";
+
+        // Change button text back to Check Answer
+        if (checkButton != null)
+        {
+            Text buttonText = checkButton.GetComponentInChildren<Text>();
+            if (buttonText != null) buttonText.text = "Check Answer";
         }
 
-        if (statusText != null) statusText.text = $"Result: {correctCount} / 15 Correct!";
-        // Keep in Solve state to allow corrections
-        // currentState = GameState.Result;
-        // if (checkButton != null) checkButton.interactable = false;
+        // Reset card colors and keep showing answer with question
+        foreach (DraggableCard card in cards)
+        {
+            Image cardImage = card.GetComponent<Image>();
+            if (cardImage != null) cardImage.color = Color.white;
+
+            // Keep showing answer with question as hint
+            string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
+            string questionText = currentRoundWords[card.originalIndex].japanese;
+            card.SetText($"{answerText}\n({questionText})");
+        }
+
+        // Shuffle cards for second attempt
+        ShuffleCards();
     }
 }

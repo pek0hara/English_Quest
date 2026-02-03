@@ -200,8 +200,9 @@
         let currentSessionWords = [];
         let timer = 10;
         let timerInterval;
-        let gameState = 'MEMORIZE'; // MEMORIZE, SOLVE, RESULT
+        let gameState = 'MEMORIZE'; // MEMORIZE, SOLVE, CHECK1, SOLVE2, RESULT
         let selectedCard = null;
+        let stage1Score = 0;
 
         const grid = document.getElementById('grid');
         const statusText = document.getElementById('status-text');
@@ -316,11 +317,15 @@
                 card.classList.remove('correct');
                 card.classList.remove('incorrect');
             });
-            statusText.textContent = reverseModeToggle.checked ? "Arrange the Japanese words!" : "Arrange the English words!";
+            if (gameState === 'SOLVE2') {
+                statusText.textContent = "Stage 2: Arrange again using hints!";
+            } else {
+                statusText.textContent = reverseModeToggle.checked ? "Arrange the Japanese words!" : "Arrange the English words!";
+            }
         }
 
         function handleDragStart(e) {
-            if (gameState !== 'SOLVE') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
 
             clearFeedback();
 
@@ -336,24 +341,24 @@
         }
 
         function handleDragOver(e) {
-            if (gameState !== 'SOLVE') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         }
 
         function handleDragEnter(e) {
-            if (gameState !== 'SOLVE') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
             e.preventDefault();
             this.classList.add('drag-over');
         }
 
         function handleDragLeave(e) {
-            if (gameState !== 'SOLVE') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
             this.classList.remove('drag-over');
         }
 
         function handleDrop(e) {
-            if (gameState !== 'SOLVE') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
             e.preventDefault();
             this.classList.remove('drag-over');
 
@@ -383,7 +388,7 @@
         }
 
         function handleCardClick(e) {
-            if (gameState !== 'SOLVE') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
 
             const clickedCard = e.currentTarget;
 
@@ -418,48 +423,109 @@
         }
 
         function checkAnswer() {
-            if (gameState !== 'SOLVE') return;
+            if (gameState === 'SOLVE') {
+                // Stage 1: Show results with problem and answer
+                let correctCount = 0;
+                const slots = document.querySelectorAll('.slot');
 
-            let correctCount = 0;
-            const slots = document.querySelectorAll('.slot');
+                slots.forEach(slot => {
+                    const card = slot.querySelector('.card');
+                    const slotIndex = parseInt(slot.dataset.index);
 
-            slots.forEach(slot => {
-                const card = slot.querySelector('.card');
-                const slotIndex = parseInt(slot.dataset.index);
+                    if (card) {
+                        const originalIndex = parseInt(card.dataset.originalIndex);
 
-                if (card) {
-                    const originalIndex = parseInt(card.dataset.originalIndex);
+                        if (originalIndex === slotIndex) {
+                            correctCount++;
+                            card.classList.add('correct');
+                            card.classList.remove('incorrect');
+                        } else {
+                            card.classList.add('incorrect');
+                            card.classList.remove('correct');
+                        }
 
-                    if (originalIndex === slotIndex) {
-                        correctCount++;
-                        card.classList.add('correct');
-                        card.classList.remove('incorrect');
-                    } else {
-                        card.classList.add('incorrect');
-                        card.classList.remove('correct');
+                        // Show answer with original question below
+                        const word = currentSessionWords[originalIndex];
+                        const questionText = word.jp;
+                        const isReverse = reverseModeToggle.checked;
+                        const answerText = isReverse ? word.jp : word.en;
+
+                        card.innerHTML = `<div style="text-align: center;">${answerText}<br><small style="color: #555;">(${questionText})</small></div>`;
                     }
+                });
 
-                    // Show original question (Japanese) below the answer
-                    const word = currentSessionWords[originalIndex];
-                    // Always use Japanese per user request
-                    const questionText = word.jp;
+                stage1Score = correctCount;
+                gameState = 'CHECK1';
+                statusText.textContent = `Stage 1: ${correctCount} / ${wordsData.length} Correct! Press button to start Stage 2`;
+                checkBtn.textContent = 'Start Stage 2';
 
-                    // Reconstruct main text from data to ensure idempotency
-                    const isReverse = reverseModeToggle.checked;
-                    const currentMainText = isReverse ? word.jp : word.en;
+            } else if (gameState === 'CHECK1') {
+                // Transition to Stage 2
+                startSolve2Phase();
 
-                    card.innerHTML = `<div style="text-align: center;">${currentMainText}<br><small style="color: #555;">(${questionText})</small></div>`;
-                }
+            } else if (gameState === 'SOLVE2') {
+                // Stage 2: Final check
+                let correctCount = 0;
+                const slots = document.querySelectorAll('.slot');
+
+                slots.forEach(slot => {
+                    const card = slot.querySelector('.card');
+                    const slotIndex = parseInt(slot.dataset.index);
+
+                    if (card) {
+                        const originalIndex = parseInt(card.dataset.originalIndex);
+
+                        if (originalIndex === slotIndex) {
+                            correctCount++;
+                            card.classList.add('correct');
+                            card.classList.remove('incorrect');
+                        } else {
+                            card.classList.add('incorrect');
+                            card.classList.remove('correct');
+                        }
+
+                        // Show answer with original question below
+                        const word = currentSessionWords[originalIndex];
+                        const questionText = word.jp;
+                        const isReverse = reverseModeToggle.checked;
+                        const answerText = isReverse ? word.jp : word.en;
+
+                        card.innerHTML = `<div style="text-align: center;">${answerText}<br><small style="color: #555;">(${questionText})</small></div>`;
+                    }
+                });
+
+                gameState = 'RESULT';
+                statusText.textContent = `Final: Stage1 ${stage1Score}/${wordsData.length} → Stage2 ${correctCount}/${wordsData.length}`;
+                checkBtn.textContent = 'Restart Game';
+
+            } else if (gameState === 'RESULT') {
+                // Restart the game
+                checkBtn.textContent = 'Check Answer';
+                resetGame();
+            }
+        }
+
+        function startSolve2Phase() {
+            gameState = 'SOLVE2';
+            statusText.textContent = 'Stage 2: Arrange again using hints!';
+            checkBtn.textContent = 'Check Answer';
+
+            // Reset card colors and keep showing answer with question
+            cards.forEach(card => {
+                card.classList.remove('correct');
+                card.classList.remove('incorrect');
+
+                const originalIndex = parseInt(card.dataset.originalIndex);
+                const word = currentSessionWords[originalIndex];
+                const questionText = word.jp;
+                const isReverse = reverseModeToggle.checked;
+                const answerText = isReverse ? word.jp : word.en;
+
+                card.innerHTML = `<div style="text-align: center;">${answerText}<br><small style="color: #555;">(${questionText})</small></div>`;
             });
 
-            statusText.textContent = `Result: ${correctCount} / ${wordsData.length} Correct!`;
-            // Keep game state as SOLVE to allow corrections
-            // gameState = 'RESULT';
-            // checkBtn.disabled = true;
-            // cards.forEach(card => {
-            //     card.draggable = false;
-            //     card.classList.remove('draggable');
-            // });
+            // Shuffle cards for second attempt
+            shuffleCards();
         }
 
         function resetGame() {
