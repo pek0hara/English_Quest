@@ -197,6 +197,7 @@
         ];
 
         let cards = [];
+        let currentSessionWords = [];
         let timer = 10;
         let timerInterval;
         let gameState = 'MEMORIZE'; // MEMORIZE, SOLVE, RESULT
@@ -215,6 +216,14 @@
             gameState = 'MEMORIZE';
             timer = 10;
             cards = [];
+            currentSessionWords = [...wordsData];
+
+            // Shuffle the words for this session
+            for (let i = currentSessionWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentSessionWords[i], currentSessionWords[j]] = [currentSessionWords[j], currentSessionWords[i]];
+            }
+
             grid.innerHTML = '';
             checkBtn.disabled = true;
             statusText.textContent = "Memorize the positions!";
@@ -223,7 +232,7 @@
             const isReverse = reverseModeToggle.checked;
 
             // Create slots and cards
-            wordsData.forEach((word, index) => {
+            currentSessionWords.forEach((word, index) => {
                 // Create Slot
                 const slot = document.createElement('div');
                 slot.className = 'slot';
@@ -275,7 +284,7 @@
             // Switch to target language
             cards.forEach(card => {
                 const index = parseInt(card.dataset.originalIndex);
-                card.textContent = isReverse ? wordsData[index].jp : wordsData[index].en;
+                card.textContent = isReverse ? currentSessionWords[index].jp : currentSessionWords[index].en;
                 card.draggable = true;
                 card.classList.add('draggable');
             });

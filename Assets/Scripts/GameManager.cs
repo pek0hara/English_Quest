@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
 
     private List<CardSlot> slots = new List<CardSlot>();
     private List<DraggableCard> cards = new List<DraggableCard>();
+    private List<WordData> currentRoundWords;
 
     private float timer = 10f;
     private bool isTimerRunning = false;
@@ -73,6 +74,17 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // Prepare words for this round
+        currentRoundWords = new List<WordData>(wordList.words);
+        // Shuffle currentRoundWords
+        for (int i = 0; i < currentRoundWords.Count; i++)
+        {
+            WordData temp = currentRoundWords[i];
+            int randomIndex = Random.Range(i, currentRoundWords.Count);
+            currentRoundWords[i] = currentRoundWords[randomIndex];
+            currentRoundWords[randomIndex] = temp;
+        }
+
         // Create 15 slots and cards
         for (int i = 0; i < 15; i++)
         {
@@ -89,7 +101,7 @@ public class GameManager : MonoBehaviour
             DraggableCard card = cardObj.GetComponent<DraggableCard>();
             if (card == null) card = cardObj.AddComponent<DraggableCard>();
 
-            string text = reverseMode ? wordList.words[i].english : wordList.words[i].japanese;
+            string text = reverseMode ? currentRoundWords[i].english : currentRoundWords[i].japanese;
             card.Initialize(text, i);
 
             // Disable interaction during memorization
@@ -115,7 +127,7 @@ public class GameManager : MonoBehaviour
         // Switch to English
         for (int i = 0; i < cards.Count; i++)
         {
-            string text = reverseMode ? wordList.words[cards[i].originalIndex].japanese : wordList.words[cards[i].originalIndex].english;
+            string text = reverseMode ? currentRoundWords[cards[i].originalIndex].japanese : currentRoundWords[cards[i].originalIndex].english;
             cards[i].SetText(text);
 
             // Enable interaction
