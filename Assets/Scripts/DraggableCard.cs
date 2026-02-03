@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DraggableCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class DraggableCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     public Text wordText;
     public int originalIndex; // The index corresponding to the correct answer
@@ -90,5 +90,17 @@ public class DraggableCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public Transform GetParentSlot()
     {
         return parentToReturnTo;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // Simple click detection, works for touch too
+        if (eventData.dragging) return; // Ignore if it was a drag
+
+        GameManager gm = FindObjectOfType<GameManager>();
+        if (gm != null)
+        {
+            gm.OnCardClicked(this);
+        }
     }
 }

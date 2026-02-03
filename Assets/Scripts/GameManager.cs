@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 
     private enum GameState { Memorize, Solve, Result }
     private GameState currentState;
+    private DraggableCard selectedSwapCard = null;
 
     void Start()
     {
@@ -144,6 +145,50 @@ public class GameManager : MonoBehaviour
             card.transform.SetParent(slot.transform);
             card.transform.localPosition = Vector3.zero;
             card.SetParentSlot(slot.transform);
+        }
+    }
+
+    public void OnCardClicked(DraggableCard clickedCard)
+    {
+        if (currentState != GameState.Solve) return;
+
+        if (selectedSwapCard == null)
+        {
+            // Select first card
+            selectedSwapCard = clickedCard;
+            // Visual feedback: Scale up
+            clickedCard.transform.localScale = new Vector3(1.1f, 1.1f, 1f);
+        }
+        else if (selectedSwapCard == clickedCard)
+        {
+            // Deselect same card
+            clickedCard.transform.localScale = Vector3.one;
+            selectedSwapCard = null;
+        }
+        else
+        {
+            // Swap logic
+
+            // Get current parent slots
+            Transform parent1 = selectedSwapCard.GetParentSlot();
+            Transform parent2 = clickedCard.GetParentSlot();
+
+            // Reset scale of selected card
+            selectedSwapCard.transform.localScale = Vector3.one;
+
+            // Perform Swap
+            // Move selectedSwapCard to parent2
+            selectedSwapCard.transform.SetParent(parent2);
+            selectedSwapCard.transform.localPosition = Vector3.zero;
+            selectedSwapCard.SetParentSlot(parent2);
+
+            // Move clickedCard to parent1
+            clickedCard.transform.SetParent(parent1);
+            clickedCard.transform.localPosition = Vector3.zero;
+            clickedCard.SetParentSlot(parent1);
+
+            // Clear selection
+            selectedSwapCard = null;
         }
     }
 
