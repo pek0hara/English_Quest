@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Unity English Word Learning App</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f6f8fa;
+            color: #24292e;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #eaecef;
+            margin: 30px 0;
+        }
+
+        .documentation h1, .documentation h2, .documentation h3 {
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+        }
+
+        .back-link {
+            display: block;
+            margin-bottom: 20px;
+            color: #0366d6;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back-link">← Back to Game</a>
+        <h1>Documentation</h1>
+    </header>
+
+    <section class="documentation">
+        <h1>Unity English Word Learning App</h1>
+        <p>This project contains the scripts to create a Unity-based English word learning application. The app displays a 3x5 grid of Japanese words for 10 seconds (Memorize Phase), then switches to randomized English words that the user must rearrange to match the original positions (Solve Phase).</p>
+
+        <h2>Setup Instructions</h2>
+
+        <h3>1. Create a Unity Project</h3>
+        <ol>
+            <li>Open Unity Hub and create a new <strong>2D</strong> project.</li>
+            <li>Copy the <code>Assets</code> folder from this repository into your Unity project's root folder.</li>
+        </ol>
+
+        <h3>2. Prepare Prefabs</h3>
+
+        <h4>Card Prefab</h4>
+        <ol>
+            <li>In the Hierarchy, right-click -> UI -> Image. Name it <code>Card</code>.</li>
+            <li>Add a <strong>Text</strong> child to <code>Card</code> (Right-click <code>Card</code> -> UI -> Text). Adjust size to fill the card.</li>
+            <li>Add the following components to the <code>Card</code> object:
+                <ul>
+                    <li><code>Canvas Group</code></li>
+                    <li><code>DraggableCard</code> script</li>
+                </ul>
+            </li>
+            <li>Drag the <code>Text</code> object to the <code>Word Text</code> field of the <code>DraggableCard</code> component.</li>
+            <li>Drag the <code>Card</code> object from Hierarchy to <code>Assets/Resources</code> (or any folder) to create a Prefab.</li>
+            <li>Delete the <code>Card</code> from Hierarchy.</li>
+        </ol>
+
+        <h4>Slot Prefab</h4>
+        <ol>
+            <li>In the Hierarchy, right-click -> UI -> Image. Name it <code>Slot</code>.</li>
+            <li>Set the color to something distinct (e.g., grey) or make it transparent.</li>
+            <li>Add the <code>CardSlot</code> script to the <code>Slot</code> object.</li>
+            <li>Drag the <code>Slot</code> object to <code>Assets/Resources</code> to create a Prefab.</li>
+            <li>Delete the <code>Slot</code> from Hierarchy.</li>
+        </ol>
+
+        <h3>3. Setup Scene</h3>
+        <ol>
+            <li><strong>Canvas</strong>: Ensure there is a Canvas in the scene.</li>
+            <li><strong>GameManager</strong>: Create an empty GameObject named <code>GameManager</code>. Attach the <code>GameManager</code> script.</li>
+            <li><strong>Grid</strong>: Inside the Canvas, create an Empty GameObject named <code>Grid</code>.
+                <ul>
+                    <li>Add a <code>Grid Layout Group</code> component.</li>
+                    <li>Set <code>Constraint</code> to <strong>Fixed Column Count</strong> and set <code>Constraint Count</code> to <strong>3</strong>.</li>
+                    <li>Adjust <code>Cell Size</code> and <code>Spacing</code> as needed (e.g., 200x100).</li>
+                </ul>
+            </li>
+            <li><strong>UI Elements</strong>: Create UI Text for Timer and Status, and a Button for "Check Answer".</li>
+        </ol>
+
+        <h3>4. Configure GameManager</h3>
+        <p>Select the <code>GameManager</code> object and assign the references in the Inspector:</p>
+        <ul>
+            <li><strong>Slot Prefab</strong>: Drag the <code>Slot</code> prefab.</li>
+            <li><strong>Card Prefab</strong>: Drag the <code>Card</code> prefab.</li>
+            <li><strong>Grid Parent</strong>: Drag the <code>Grid</code> object from the Hierarchy.</li>
+            <li><strong>Timer Text</strong>: Drag the Timer Text object.</li>
+            <li><strong>Status Text</strong>: Drag the Status Text object.</li>
+            <li><strong>Check Button</strong>: Drag the Check Button object.</li>
+            <li><strong>Word List</strong>: (See below)</li>
+        </ul>
+
+        <h3>5. Create Word Data</h3>
+        <ol>
+            <li>In the Project window, right-click -> Create -> Word List.</li>
+            <li>Select the new <code>NewWordList</code> file.</li>
+            <li>In the Inspector, set the Size of <code>Words</code> to <strong>15</strong> (or more).</li>
+            <li>Fill in the Japanese and English fields for each element.</li>
+            <li>Drag this <code>NewWordList</code> asset to the <code>Word List</code> field in the <code>GameManager</code>.</li>
+        </ol>
+
+        <h3>6. Run</h3>
+        <p>Press Play in the Unity Editor.</p>
+        <ul>
+            <li><strong>Memorize Phase</strong>: You will see Japanese words. Wait 10 seconds.</li>
+            <li><strong>Solve Phase</strong>: Words change to English and positions shuffle. Drag and drop cards to rearrange them.</li>
+            <li><strong>Check</strong>: Click the button to verify your answer. Green indicates correct position, Red indicates incorrect.</li>
+        </ul>
+    </section>
+</body>
+</html>
