@@ -95,6 +95,13 @@
             color: #cb2431;
         }
 
+        .card.selected {
+            border: 2px solid #0366d6;
+            background-color: #e6f7ff;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
         .slot.drag-over {
             background-color: #e6ffed;
             border-color: #2ea44f;
@@ -190,6 +197,7 @@
         let timer = 10;
         let timerInterval;
         let gameState = 'MEMORIZE'; // MEMORIZE, SOLVE, RESULT
+        let selectedCard = null;
 
         const grid = document.getElementById('grid');
         const statusText = document.getElementById('status-text');
@@ -231,6 +239,9 @@
                 // Drag events
                 card.addEventListener('dragstart', handleDragStart);
                 card.addEventListener('dragend', handleDragEnd);
+
+                // Click event for tap-to-swap
+                card.addEventListener('click', handleCardClick);
 
                 cards.push(card);
                 slot.appendChild(card);
@@ -285,6 +296,13 @@
 
         function handleDragStart(e) {
             if (gameState !== 'SOLVE') return;
+
+            // Clear any selected card if dragging starts
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+                selectedCard = null;
+            }
+
             draggedCard = this;
             e.dataTransfer.effectAllowed = 'move';
             this.style.opacity = '0.4';
@@ -335,6 +353,40 @@
         function handleDragEnd(e) {
             this.style.opacity = '1';
             draggedCard = null;
+        }
+
+        function handleCardClick(e) {
+            if (gameState !== 'SOLVE') return;
+
+            const clickedCard = e.currentTarget;
+
+            // If no card selected, select this one
+            if (!selectedCard) {
+                selectedCard = clickedCard;
+                clickedCard.classList.add('selected');
+                return;
+            }
+
+            // If clicked same card, deselect
+            if (selectedCard === clickedCard) {
+                selectedCard.classList.remove('selected');
+                selectedCard = null;
+                return;
+            }
+
+            // If different card, swap
+            const sourceSlot = selectedCard.parentElement;
+            const targetSlot = clickedCard.parentElement;
+
+            // Swap the cards in the DOM
+            if (sourceSlot && targetSlot) {
+                sourceSlot.appendChild(clickedCard);
+                targetSlot.appendChild(selectedCard);
+            }
+
+            // Clear selection and styling
+            selectedCard.classList.remove('selected');
+            selectedCard = null;
         }
 
         function checkAnswer() {
