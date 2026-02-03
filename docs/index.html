@@ -426,6 +426,12 @@
                         card.classList.add('incorrect');
                         card.classList.remove('correct');
                     }
+
+                    // Show original question below the answer
+                    const word = currentSessionWords[originalIndex];
+                    const questionText = reverseModeToggle.checked ? word.en : word.jp;
+                    const currentText = card.textContent;
+                    card.innerHTML = `<div style="text-align: center;">${currentText}<br><small style="color: #555;">(${questionText})</small></div>`;
                 }
             });
 

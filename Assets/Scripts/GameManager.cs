@@ -231,6 +231,14 @@ public class GameManager : MonoBehaviour
                 {
                     if (cardImage != null) cardImage.color = Color.red;
                 }
+
+                // Show original question below the answer
+                if (card != null)
+                {
+                    string currentText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
+                    string questionText = reverseMode ? currentRoundWords[card.originalIndex].english : currentRoundWords[card.originalIndex].japanese;
+                    card.SetText($"{currentText}\n({questionText})");
+                }
             }
         }
 
