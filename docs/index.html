@@ -310,8 +310,19 @@
             });
         }
 
+        function clearFeedback() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.classList.remove('correct');
+                card.classList.remove('incorrect');
+            });
+            statusText.textContent = reverseModeToggle.checked ? "Arrange the Japanese words!" : "Arrange the English words!";
+        }
+
         function handleDragStart(e) {
             if (gameState !== 'SOLVE') return;
+
+            clearFeedback();
 
             // Clear any selected card if dragging starts
             if (selectedCard) {
@@ -396,6 +407,7 @@
 
             // Swap the cards in the DOM
             if (sourceSlot && targetSlot) {
+                clearFeedback(); // Clear feedback on swap
                 sourceSlot.appendChild(clickedCard);
                 targetSlot.appendChild(selectedCard);
             }
@@ -426,16 +438,28 @@
                         card.classList.add('incorrect');
                         card.classList.remove('correct');
                     }
+
+                    // Show original question (Japanese) below the answer
+                    const word = currentSessionWords[originalIndex];
+                    // Always use Japanese per user request
+                    const questionText = word.jp;
+
+                    // Reconstruct main text from data to ensure idempotency
+                    const isReverse = reverseModeToggle.checked;
+                    const currentMainText = isReverse ? word.jp : word.en;
+
+                    card.innerHTML = `<div style="text-align: center;">${currentMainText}<br><small style="color: #555;">(${questionText})</small></div>`;
                 }
             });
 
             statusText.textContent = `Result: ${correctCount} / ${wordsData.length} Correct!`;
-            gameState = 'RESULT';
-            checkBtn.disabled = true;
-            cards.forEach(card => {
-                card.draggable = false;
-                card.classList.remove('draggable');
-            });
+            // Keep game state as SOLVE to allow corrections
+            // gameState = 'RESULT';
+            // checkBtn.disabled = true;
+            // cards.forEach(card => {
+            //     card.draggable = false;
+            //     card.classList.remove('draggable');
+            // });
         }
 
         function resetGame() {

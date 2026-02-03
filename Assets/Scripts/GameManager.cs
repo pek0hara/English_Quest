@@ -164,9 +164,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ResetFeedback()
+    {
+        foreach (DraggableCard card in cards)
+        {
+            Image cardImage = card.GetComponent<Image>();
+            if (cardImage != null) cardImage.color = Color.white; // Reset to default
+        }
+        if (statusText != null) statusText.text = reverseMode ? "Arrange the Japanese words!" : "Arrange the English words!";
+    }
+
     public void OnCardClicked(DraggableCard clickedCard)
     {
         if (currentState != GameState.Solve) return;
+
+        ResetFeedback();
 
         if (selectedSwapCard == null)
         {
@@ -231,11 +243,21 @@ public class GameManager : MonoBehaviour
                 {
                     if (cardImage != null) cardImage.color = Color.red;
                 }
+
+                // Show original question below the answer
+                if (card != null)
+                {
+                    string currentText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
+                    // Always use Japanese per user request
+                    string questionText = currentRoundWords[card.originalIndex].japanese;
+                    card.SetText($"{currentText}\n({questionText})");
+                }
             }
         }
 
         if (statusText != null) statusText.text = $"Result: {correctCount} / 15 Correct!";
-        currentState = GameState.Result;
-        if (checkButton != null) checkButton.interactable = false;
+        // Keep in Solve state to allow corrections
+        // currentState = GameState.Result;
+        // if (checkButton != null) checkButton.interactable = false;
     }
 }
