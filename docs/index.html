@@ -315,34 +315,21 @@
             const targetSlot = this;
             if (!draggedCard) return;
 
-            // Get all slots and convert to array
-            const slots = Array.from(document.querySelectorAll('.slot'));
+            // Get the card currently in the target slot (if any)
+            const targetCard = targetSlot.querySelector('.card');
+            const originalSlot = draggedCard.parentElement;
 
-            // Get current list of cards based on slot order
-            const currentCards = slots.map(slot => slot.querySelector('.card')).filter(c => c !== null);
+            if (targetSlot === originalSlot) return;
 
-            // Find indices
-            const oldIndex = currentCards.indexOf(draggedCard);
-            const newIndex = slots.indexOf(targetSlot);
-
-            if (oldIndex === -1 || newIndex === -1) return;
-            if (oldIndex === newIndex) return;
-
-            // Remove dragged card from old position
-            currentCards.splice(oldIndex, 1);
-
-            // Insert at new position
-            currentCards.splice(newIndex, 0, draggedCard);
-
-            // Re-render DOM
-            slots.forEach((slot, i) => {
-                if (slot.firstChild) {
-                    slot.removeChild(slot.firstChild); // Clear slot
+            if (targetCard) {
+                // Swap: Move targetCard to originalSlot
+                if (originalSlot) {
+                    originalSlot.appendChild(targetCard);
                 }
-                if (currentCards[i]) {
-                    slot.appendChild(currentCards[i]);
-                }
-            });
+            }
+
+            // Move draggedCard to targetSlot
+            targetSlot.appendChild(draggedCard);
         }
 
         function handleDragEnd(e) {
