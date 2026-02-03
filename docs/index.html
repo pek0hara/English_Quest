@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity English Word Learning App</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f6f8fa;
+            color: #24292e;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #status-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #0366d6;
+        }
+
+        #timer-text {
+            font-size: 1.5em;
+            color: #d73a49;
+        }
+
+        #game-container {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .slot {
+            height: 60px;
+            background-color: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border: 1px solid #d1d5da;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        .card.draggable {
+            cursor: grab;
+        }
+
+        .card.draggable:active {
+            cursor: grabbing;
+        }
+
+        .card.correct {
+            background-color: #dcffe4;
+            border-color: #28a745;
+            color: #22863a;
+        }
+
+        .card.incorrect {
+            background-color: #ffeef0;
+            border-color: #d73a49;
+            color: #cb2431;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1em;
+            background-color: #2ea44f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #94d3a2;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #2c974b;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #eaecef;
+            margin: 30px 0;
+        }
+
+        .documentation h1, .documentation h2, .documentation h3 {
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+        }
+
+        /* Mobile adjustment */
+        @media (max-width: 500px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .slot {
+                height: 50px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>English Word Learning Game</h1>
+        <p id="status-text">Loading...</p>
+        <p id="timer-text">Time: 10</p>
+    </header>
+
+    <div id="game-container">
+        <div class="grid" id="grid"></div>
+        <button id="check-btn" onclick="checkAnswer()" disabled>Check Answer</button>
+        <div style="text-align: center; margin-top: 10px;">
+            <button onclick="resetGame()" style="background-color: #0366d6; width: auto; display: inline-block; padding: 5px 15px; font-size: 0.9em;">Reset</button>
+        </div>
+    </div>
+
+    <hr>
+
+    <section class="documentation">
+        <h1>Unity English Word Learning App</h1>
+        <p>This project contains the scripts to create a Unity-based English word learning application. The app displays a 3x5 grid of Japanese words for 10 seconds (Memorize Phase), then switches to randomized English words that the user must rearrange to match the original positions (Solve Phase).</p>
+
+        <h2>Setup Instructions</h2>
+
+        <h3>1. Create a Unity Project</h3>
+        <ol>
+            <li>Open Unity Hub and create a new <strong>2D</strong> project.</li>
+            <li>Copy the <code>Assets</code> folder from this repository into your Unity project's root folder.</li>
+        </ol>
+
+        <h3>2. Prepare Prefabs</h3>
+
+        <h4>Card Prefab</h4>
+        <ol>
+            <li>In the Hierarchy, right-click -> UI -> Image. Name it <code>Card</code>.</li>
+            <li>Add a <strong>Text</strong> child to <code>Card</code> (Right-click <code>Card</code> -> UI -> Text). Adjust size to fill the card.</li>
+            <li>Add the following components to the <code>Card</code> object:
+                <ul>
+                    <li><code>Canvas Group</code></li>
+                    <li><code>DraggableCard</code> script</li>
+                </ul>
+            </li>
+            <li>Drag the <code>Text</code> object to the <code>Word Text</code> field of the <code>DraggableCard</code> component.</li>
+            <li>Drag the <code>Card</code> object from Hierarchy to <code>Assets/Resources</code> (or any folder) to create a Prefab.</li>
+            <li>Delete the <code>Card</code> from Hierarchy.</li>
+        </ol>
+
+        <h4>Slot Prefab</h4>
+        <ol>
+            <li>In the Hierarchy, right-click -> UI -> Image. Name it <code>Slot</code>.</li>
+            <li>Set the color to something distinct (e.g., grey) or make it transparent.</li>
+            <li>Add the <code>CardSlot</code> script to the <code>Slot</code> object.</li>
+            <li>Drag the <code>Slot</code> object to <code>Assets/Resources</code> to create a Prefab.</li>
+            <li>Delete the <code>Slot</code> from Hierarchy.</li>
+        </ol>
+
+        <h3>3. Setup Scene</h3>
+        <ol>
+            <li><strong>Canvas</strong>: Ensure there is a Canvas in the scene.</li>
+            <li><strong>GameManager</strong>: Create an empty GameObject named <code>GameManager</code>. Attach the <code>GameManager</code> script.</li>
+            <li><strong>Grid</strong>: Inside the Canvas, create an Empty GameObject named <code>Grid</code>.
+                <ul>
+                    <li>Add a <code>Grid Layout Group</code> component.</li>
+                    <li>Set <code>Constraint</code> to <strong>Fixed Column Count</strong> and set <code>Constraint Count</code> to <strong>3</strong>.</li>
+                    <li>Adjust <code>Cell Size</code> and <code>Spacing</code> as needed (e.g., 200x100).</li>
+                </ul>
+            </li>
+            <li><strong>UI Elements</strong>: Create UI Text for Timer and Status, and a Button for "Check Answer".</li>
+        </ol>
+
+        <h3>4. Configure GameManager</h3>
+        <p>Select the <code>GameManager</code> object and assign the references in the Inspector:</p>
+        <ul>
+            <li><strong>Slot Prefab</strong>: Drag the <code>Slot</code> prefab.</li>
+            <li><strong>Card Prefab</strong>: Drag the <code>Card</code> prefab.</li>
+            <li><strong>Grid Parent</strong>: Drag the <code>Grid</code> object from the Hierarchy.</li>
+            <li><strong>Timer Text</strong>: Drag the Timer Text object.</li>
+            <li><strong>Status Text</strong>: Drag the Status Text object.</li>
+            <li><strong>Check Button</strong>: Drag the Check Button object.</li>
+            <li><strong>Word List</strong>: (See below)</li>
+        </ul>
+
+        <h3>5. Create Word Data</h3>
+        <ol>
+            <li>In the Project window, right-click -> Create -> Word List.</li>
+            <li>Select the new <code>NewWordList</code> file.</li>
+            <li>In the Inspector, set the Size of <code>Words</code> to <strong>15</strong> (or more).</li>
+            <li>Fill in the Japanese and English fields for each element.</li>
+            <li>Drag this <code>NewWordList</code> asset to the <code>Word List</code> field in the <code>GameManager</code>.</li>
+        </ol>
+
+        <h3>6. Run</h3>
+        <p>Press Play in the Unity Editor.</p>
+        <ul>
+            <li><strong>Memorize Phase</strong>: You will see Japanese words. Wait 10 seconds.</li>
+            <li><strong>Solve Phase</strong>: Words change to English and positions shuffle. Drag and drop cards to rearrange them.</li>
+            <li><strong>Check</strong>: Click the button to verify your answer. Green indicates correct position, Red indicates incorrect.</li>
+        </ul>
+    </section>
+
+    <script>
+        const wordsData = [
+            { jp: "りんご", en: "Apple" },
+            { jp: "本", en: "Book" },
+            { jp: "猫", en: "Cat" },
+            { jp: "犬", en: "Dog" },
+            { jp: "卵", en: "Egg" },
+            { jp: "魚", en: "Fish" },
+            { jp: "女の子", en: "Girl" },
+            { jp: "手", en: "Hand" },
+            { jp: "氷", en: "Ice" },
+            { jp: "ジャンプ", en: "Jump" },
+            { jp: "凧", en: "Kite" },
+            { jp: "ライオン", en: "Lion" },
+            { jp: "月", en: "Moon" },
+            { jp: "鼻", en: "Nose" },
+            { jp: "オレンジ", en: "Orange" }
+        ];
+
+        let cards = [];
+        let timer = 10;
+        let timerInterval;
+        let gameState = 'MEMORIZE'; // MEMORIZE, SOLVE, RESULT
+
+        const grid = document.getElementById('grid');
+        const statusText = document.getElementById('status-text');
+        const timerText = document.getElementById('timer-text');
+        const checkBtn = document.getElementById('check-btn');
+
+        let draggedCard = null;
+
+        function initGame() {
+            // Reset state
+            gameState = 'MEMORIZE';
+            timer = 10;
+            cards = [];
+            grid.innerHTML = '';
+            checkBtn.disabled = true;
+            statusText.textContent = "Memorize the positions!";
+            timerText.textContent = "Time: " + timer;
+
+            // Create slots and cards
+            wordsData.forEach((word, index) => {
+                // Create Slot
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.dataset.index = index;
+
+                // Drop events
+                slot.addEventListener('dragover', handleDragOver);
+                slot.addEventListener('drop', handleDrop);
+                // Touch events wrapper (simple approach: mapped to click-swap or just basic polyfill logic needed for mobile?
+                // Native HTML5 DnD doesn't work on mobile by default. For simplicity, we stick to Desktop DnD for now,
+                // but maybe add simple click-to-swap logic for accessibility/mobile).
+
+                // Create Card
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.textContent = word.jp;
+                card.dataset.originalIndex = index;
+                card.draggable = false; // Disabled during memorize
+
+                // Drag events
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+
+                cards.push(card);
+                slot.appendChild(card);
+                grid.appendChild(slot);
+            });
+
+            // Start Timer
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timer--;
+                timerText.textContent = "Time: " + timer;
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    startSolvePhase();
+                }
+            }, 1000);
+        }
+
+        function startSolvePhase() {
+            gameState = 'SOLVE';
+            statusText.textContent = "Arrange the English words!";
+            checkBtn.disabled = false;
+
+            // Switch to English
+            cards.forEach(card => {
+                const index = parseInt(card.dataset.originalIndex);
+                card.textContent = wordsData[index].en;
+                card.draggable = true;
+                card.classList.add('draggable');
+            });
+
+            shuffleCards();
+        }
+
+        function shuffleCards() {
+            // Fisher-Yates shuffle
+            const shuffledCards = [...cards];
+            for (let i = shuffledCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledCards[i], shuffledCards[j]] = [shuffledCards[j], shuffledCards[i]];
+            }
+
+            // Append to slots in new order
+            const slots = document.querySelectorAll('.slot');
+            slots.forEach((slot, i) => {
+                if (slot.firstChild) {
+                    slot.removeChild(slot.firstChild);
+                }
+                slot.appendChild(shuffledCards[i]);
+            });
+        }
+
+        function handleDragStart(e) {
+            if (gameState !== 'SOLVE') return;
+            draggedCard = this;
+            e.dataTransfer.effectAllowed = 'move';
+            this.style.opacity = '0.4';
+        }
+
+        function handleDragOver(e) {
+            if (gameState !== 'SOLVE') return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e) {
+            if (gameState !== 'SOLVE') return;
+            e.preventDefault();
+
+            // "this" is the slot
+            const targetSlot = this;
+
+            // Find the card currently in this slot (if any)
+            const targetCard = targetSlot.querySelector('.card');
+
+            // Find the slot the dragged card came from
+            const sourceSlot = draggedCard.parentElement;
+
+            // Swap logic
+            if (targetCard && targetCard !== draggedCard) {
+                // Move target card to source slot
+                sourceSlot.appendChild(targetCard);
+            }
+
+            // Move dragged card to target slot
+            targetSlot.appendChild(draggedCard);
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            draggedCard = null;
+        }
+
+        function checkAnswer() {
+            if (gameState !== 'SOLVE') return;
+
+            let correctCount = 0;
+            const slots = document.querySelectorAll('.slot');
+
+            slots.forEach(slot => {
+                const card = slot.querySelector('.card');
+                const slotIndex = parseInt(slot.dataset.index);
+
+                if (card) {
+                    const originalIndex = parseInt(card.dataset.originalIndex);
+
+                    if (originalIndex === slotIndex) {
+                        correctCount++;
+                        card.classList.add('correct');
+                        card.classList.remove('incorrect');
+                    } else {
+                        card.classList.add('incorrect');
+                        card.classList.remove('correct');
+                    }
+                }
+            });
+
+            statusText.textContent = `Result: ${correctCount} / ${wordsData.length} Correct!`;
+            gameState = 'RESULT';
+            checkBtn.disabled = true;
+            cards.forEach(card => {
+                card.draggable = false;
+                card.classList.remove('draggable');
+            });
+        }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            initGame();
+        }
+
+        // Start game on load
+        window.onload = initGame;
+
+    </script>
+</body>
+</html>
