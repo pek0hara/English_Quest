@@ -324,8 +324,43 @@
             }
         }
 
+        function updateCardFeedback() {
+            // Real-time check for CHECK1 state
+            let correctCount = 0;
+            const slots = document.querySelectorAll('.slot');
+
+            slots.forEach(slot => {
+                const card = slot.querySelector('.card');
+                const slotIndex = parseInt(slot.dataset.index);
+
+                if (card) {
+                    const originalIndex = parseInt(card.dataset.originalIndex);
+
+                    if (originalIndex === slotIndex) {
+                        correctCount++;
+                        card.classList.add('correct');
+                        card.classList.remove('incorrect');
+                    } else {
+                        card.classList.add('incorrect');
+                        card.classList.remove('correct');
+                    }
+
+                    // Update card display with answer and question
+                    const word = currentSessionWords[originalIndex];
+                    const questionText = word.jp;
+                    const isReverse = reverseModeToggle.checked;
+                    const answerText = isReverse ? word.jp : word.en;
+
+                    card.innerHTML = `<div style="text-align: center;">${answerText}<br><small style="color: #555;">(${questionText})</small></div>`;
+                }
+            });
+
+            stage1Score = correctCount;
+            statusText.textContent = `Stage 1: ${correctCount} / ${wordsData.length} Correct! Press button to start Stage 2`;
+        }
+
         function handleDragStart(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2' && gameState !== 'CHECK1') return;
 
             clearFeedback();
 
@@ -341,24 +376,24 @@
         }
 
         function handleDragOver(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2' && gameState !== 'CHECK1') return;
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         }
 
         function handleDragEnter(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2' && gameState !== 'CHECK1') return;
             e.preventDefault();
             this.classList.add('drag-over');
         }
 
         function handleDragLeave(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2' && gameState !== 'CHECK1') return;
             this.classList.remove('drag-over');
         }
 
         function handleDrop(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2' && gameState !== 'CHECK1') return;
             e.preventDefault();
             this.classList.remove('drag-over');
 
@@ -380,6 +415,11 @@
 
             // Move draggedCard to targetSlot
             targetSlot.appendChild(draggedCard);
+
+            // Real-time feedback in CHECK1 state
+            if (gameState === 'CHECK1') {
+                updateCardFeedback();
+            }
         }
 
         function handleDragEnd(e) {
@@ -388,7 +428,7 @@
         }
 
         function handleCardClick(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2' && gameState !== 'CHECK1') return;
 
             const clickedCard = e.currentTarget;
 
@@ -412,9 +452,15 @@
 
             // Swap the cards in the DOM
             if (sourceSlot && targetSlot) {
-                clearFeedback(); // Clear feedback on swap
                 sourceSlot.appendChild(clickedCard);
                 targetSlot.appendChild(selectedCard);
+
+                // Real-time feedback in CHECK1 state
+                if (gameState === 'CHECK1') {
+                    updateCardFeedback();
+                } else {
+                    clearFeedback(); // Clear feedback on swap in other states
+                }
             }
 
             // Clear selection and styling

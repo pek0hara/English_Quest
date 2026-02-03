@@ -184,9 +184,12 @@ public class GameManager : MonoBehaviour
 
     public void OnCardClicked(DraggableCard clickedCard)
     {
-        if (currentState != GameState.Solve && currentState != GameState.Solve2) return;
+        if (currentState != GameState.Solve && currentState != GameState.Solve2 && currentState != GameState.Check1) return;
 
-        ResetFeedback();
+        if (currentState != GameState.Check1)
+        {
+            ResetFeedback();
+        }
 
         if (selectedSwapCard == null)
         {
@@ -223,9 +226,51 @@ public class GameManager : MonoBehaviour
             clickedCard.transform.localPosition = Vector3.zero;
             clickedCard.SetParentSlot(parent1);
 
+            // Real-time feedback in Check1 state
+            if (currentState == GameState.Check1)
+            {
+                UpdateCardFeedback();
+            }
+
             // Clear selection
             selectedSwapCard = null;
         }
+    }
+
+    void UpdateCardFeedback()
+    {
+        // Real-time check for Check1 state
+        int correctCount = 0;
+
+        foreach (CardSlot slot in slots)
+        {
+            if (slot.transform.childCount > 0)
+            {
+                DraggableCard card = slot.transform.GetChild(0).GetComponent<DraggableCard>();
+                Image cardImage = card.GetComponent<Image>();
+
+                if (card != null && card.originalIndex == slot.slotIndex)
+                {
+                    correctCount++;
+                    if (cardImage != null) cardImage.color = Color.green;
+                }
+                else
+                {
+                    if (cardImage != null) cardImage.color = Color.red;
+                }
+
+                // Update card display with answer and question
+                if (card != null)
+                {
+                    string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
+                    string questionText = currentRoundWords[card.originalIndex].japanese;
+                    card.SetText($"{answerText}\n({questionText})");
+                }
+            }
+        }
+
+        stage1Score = correctCount;
+        if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 15 Correct!  Press button to start Stage 2";
     }
 
     void CheckAnswer()
