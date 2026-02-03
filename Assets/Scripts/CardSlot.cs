@@ -36,6 +36,13 @@ public class CardSlot : MonoBehaviour, IDropHandler
             // Set the dropped card's target parent to be this slot
             // The actual reparenting happens in OnEndDrag of DraggableCard
             droppedCard.SetParentSlot(this.transform);
+
+            // Notify GameManager to update feedback colors (for Stage 2)
+            GameManager gm = FindObjectOfType<GameManager>();
+            if (gm != null)
+            {
+                gm.OnCardDropped();
+            }
         }
     }
 }

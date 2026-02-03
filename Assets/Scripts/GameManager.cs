@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     private float timer = 10f;
     private bool isTimerRunning = false;
 
-    private enum GameState { Memorize, Solve, Check1, Solve2, Result }
+    private enum GameState { Memorize, Solve, Check1, Result }
     private GameState currentState;
     private DraggableCard selectedSwapCard = null;
     private int stage1Score = 0;
@@ -172,21 +172,52 @@ public class GameManager : MonoBehaviour
             Image cardImage = card.GetComponent<Image>();
             if (cardImage != null) cardImage.color = Color.white; // Reset to default
         }
-        if (currentState == GameState.Solve2)
+        if (statusText != null) statusText.text = reverseMode ? "Arrange the Japanese words!" : "Arrange the English words!";
+    }
+
+    void UpdateCardFeedback()
+    {
+        // Update card colors and text based on current positions
+        int correctCount = 0;
+
+        foreach (CardSlot slot in slots)
         {
-            if (statusText != null) statusText.text = "Stage 2: Arrange again using hints!";
+            if (slot.transform.childCount > 0)
+            {
+                DraggableCard card = slot.transform.GetChild(0).GetComponent<DraggableCard>();
+                Image cardImage = card.GetComponent<Image>();
+
+                if (card != null && card.originalIndex == slot.slotIndex)
+                {
+                    correctCount++;
+                    if (cardImage != null) cardImage.color = Color.green;
+                }
+                else
+                {
+                    if (cardImage != null) cardImage.color = Color.red;
+                }
+
+                // Update text with slot's original question
+                if (card != null)
+                {
+                    string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
+                    string questionText = currentRoundWords[slot.slotIndex].japanese;
+                    card.SetText($"{answerText}\n({questionText})");
+                }
+            }
         }
-        else
-        {
-            if (statusText != null) statusText.text = reverseMode ? "Arrange the Japanese words!" : "Arrange the English words!";
-        }
+
+        if (statusText != null) statusText.text = $"Stage 2: {correctCount} / 15 Correct! Rearrange or Check Answer";
     }
 
     public void OnCardClicked(DraggableCard clickedCard)
     {
-        if (currentState != GameState.Solve && currentState != GameState.Solve2) return;
+        if (currentState != GameState.Solve && currentState != GameState.Check1) return;
 
-        ResetFeedback();
+        if (currentState == GameState.Solve)
+        {
+            ResetFeedback();
+        }
 
         if (selectedSwapCard == null)
         {
@@ -225,6 +256,12 @@ public class GameManager : MonoBehaviour
 
             // Clear selection
             selectedSwapCard = null;
+
+            // Update colors after swap if in Check1 state (Stage 2)
+            if (currentState == GameState.Check1)
+            {
+                UpdateCardFeedback();
+            }
         }
     }
 
@@ -252,11 +289,11 @@ public class GameManager : MonoBehaviour
                         if (cardImage != null) cardImage.color = Color.red;
                     }
 
-                    // Show answer with original question below
+                    // Show answer with original question for THIS SLOT (not card's own question)
                     if (card != null)
                     {
                         string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
-                        string questionText = currentRoundWords[card.originalIndex].japanese;
+                        string questionText = currentRoundWords[slot.slotIndex].japanese;
                         card.SetText($"{answerText}\n({questionText})");
                     }
                 }
@@ -264,23 +301,18 @@ public class GameManager : MonoBehaviour
 
             stage1Score = correctCount;
             currentState = GameState.Check1;
-            if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 15 Correct!  Press button to start Stage 2";
+            if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 15 Correct! Rearrange cards for Stage 2";
 
-            // Change button text to Stage 2
+            // Button text changes to Check Answer for final result
             if (checkButton != null)
             {
                 Text buttonText = checkButton.GetComponentInChildren<Text>();
-                if (buttonText != null) buttonText.text = "Start Stage 2";
+                if (buttonText != null) buttonText.text = "Check Answer";
             }
         }
         else if (currentState == GameState.Check1)
         {
-            // Transition to Stage 2
-            StartSolve2Phase();
-        }
-        else if (currentState == GameState.Solve2)
-        {
-            // Stage 2: Final check
+            // Stage 2: Final check (user has been rearranging in Check1 state)
             int correctCount = 0;
 
             foreach (CardSlot slot in slots)
@@ -300,11 +332,11 @@ public class GameManager : MonoBehaviour
                         if (cardImage != null) cardImage.color = Color.red;
                     }
 
-                    // Show answer with original question below
+                    // Update text with slot's original question
                     if (card != null)
                     {
                         string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
-                        string questionText = currentRoundWords[card.originalIndex].japanese;
+                        string questionText = currentRoundWords[slot.slotIndex].japanese;
                         card.SetText($"{answerText}\n({questionText})");
                     }
                 }
@@ -332,31 +364,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void StartSolve2Phase()
+    // Called by CardSlot when a card is dropped during drag-and-drop
+    public void OnCardDropped()
     {
-        currentState = GameState.Solve2;
-        if (statusText != null) statusText.text = "Stage 2: Arrange again using hints!";
-
-        // Change button text back to Check Answer
-        if (checkButton != null)
+        if (currentState == GameState.Check1)
         {
-            Text buttonText = checkButton.GetComponentInChildren<Text>();
-            if (buttonText != null) buttonText.text = "Check Answer";
+            UpdateCardFeedback();
         }
-
-        // Reset card colors and keep showing answer with question
-        foreach (DraggableCard card in cards)
-        {
-            Image cardImage = card.GetComponent<Image>();
-            if (cardImage != null) cardImage.color = Color.white;
-
-            // Keep showing answer with question as hint
-            string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
-            string questionText = currentRoundWords[card.originalIndex].japanese;
-            card.SetText($"{answerText}\n({questionText})");
-        }
-
-        // Shuffle cards for second attempt
-        ShuffleCards();
     }
 }
