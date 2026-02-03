@@ -5,6 +5,16 @@ The app displays a 3x5 grid of Japanese words for 10 seconds (Memorize Phase), t
 
 ## Setup Instructions
 
+### Automated Setup
+To quickly set up the game:
+1. Open the project in Unity.
+2. Click **Tools** -> **Setup Game** in the menu bar.
+3. This will create the necessary assets, scene objects, and configurations automatically.
+4. Press Play to run.
+
+### Manual Setup
+Follow these steps if you wish to set up the project manually.
+
 ### 1. Create a Unity Project
 1. Open Unity Hub and create a new **2D** project.
 2. Copy the `Assets` folder from this repository into your Unity project's root folder.
