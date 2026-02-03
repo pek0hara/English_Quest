@@ -156,6 +156,13 @@
 
     <header>
         <h1>English Word Learning Game</h1>
+        <div style="margin-bottom: 10px;">
+            <label for="mode-select">Mode: </label>
+            <select id="mode-select" onchange="resetGame()">
+                <option value="jp-en">Japanese -> English</option>
+                <option value="en-jp">English -> Japanese</option>
+            </select>
+        </div>
         <p id="status-text">Loading...</p>
         <p id="timer-text">Time: 10</p>
     </header>
@@ -232,7 +239,8 @@
                 // Create Card
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.textContent = word.jp;
+                const mode = document.getElementById('mode-select').value;
+                card.textContent = (mode === 'en-jp') ? word.en : word.jp;
                 card.dataset.originalIndex = index;
                 card.draggable = false; // Disabled during memorize
 
@@ -262,13 +270,15 @@
 
         function startSolvePhase() {
             gameState = 'SOLVE';
-            statusText.textContent = "Arrange the English words!";
+            statusText.textContent = "Arrange the correct words!";
             checkBtn.disabled = false;
 
-            // Switch to English
+            const mode = document.getElementById('mode-select').value;
+
+            // Switch to Target Language
             cards.forEach(card => {
                 const index = parseInt(card.dataset.originalIndex);
-                card.textContent = wordsData[index].en;
+                card.textContent = (mode === 'en-jp') ? wordsData[index].jp : wordsData[index].en;
                 card.draggable = true;
                 card.classList.add('draggable');
             });

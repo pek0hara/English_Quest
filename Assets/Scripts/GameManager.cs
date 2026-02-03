@@ -14,6 +14,8 @@ public class GameManager : MonoBehaviour
     public Text statusText;
     public Button checkButton;
 
+    public bool reverseMode = false;
+
     private List<CardSlot> slots = new List<CardSlot>();
     private List<DraggableCard> cards = new List<DraggableCard>();
 
@@ -87,7 +89,8 @@ public class GameManager : MonoBehaviour
             DraggableCard card = cardObj.GetComponent<DraggableCard>();
             if (card == null) card = cardObj.AddComponent<DraggableCard>();
 
-            card.Initialize(wordList.words[i].japanese, i);
+            string text = reverseMode ? wordList.words[i].english : wordList.words[i].japanese;
+            card.Initialize(text, i);
 
             // Disable interaction during memorization
             CanvasGroup cg = card.GetComponent<CanvasGroup>();
@@ -106,13 +109,14 @@ public class GameManager : MonoBehaviour
     void StartSolvePhase()
     {
         currentState = GameState.Solve;
-        if (statusText != null) statusText.text = "Arrange the English words!";
+        if (statusText != null) statusText.text = reverseMode ? "Arrange the Japanese words!" : "Arrange the English words!";
         if (checkButton != null) checkButton.interactable = true;
 
-        // Switch to English
+        // Switch to English (or Target Language)
         for (int i = 0; i < cards.Count; i++)
         {
-            cards[i].SetText(wordList.words[cards[i].originalIndex].english);
+            string text = reverseMode ? wordList.words[cards[i].originalIndex].japanese : wordList.words[cards[i].originalIndex].english;
+            cards[i].SetText(text);
 
             // Enable interaction
             CanvasGroup cg = cards[i].GetComponent<CanvasGroup>();
