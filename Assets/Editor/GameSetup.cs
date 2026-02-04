@@ -36,34 +36,41 @@ public class GameSetup
 
     private static WordList CreateWordList()
     {
-        string path = "Assets/SampleWordList.asset";
+        return CreateWordListForLevel(WordLevel.Level400);
+    }
+
+    /// <summary>
+    /// 指定レベルのWordListアセットを作成・取得
+    /// </summary>
+    /// <param name="level">TOEICレベル</param>
+    /// <returns>WordListアセット</returns>
+    public static WordList CreateWordListForLevel(WordLevel level)
+    {
+        string levelName = ((int)level).ToString();
+        string path = $"Assets/WordList{levelName}.asset";
         WordList asset = AssetDatabase.LoadAssetAtPath<WordList>(path);
 
         if (asset == null)
         {
             asset = ScriptableObject.CreateInstance<WordList>();
-            asset.words = new List<WordData>
-            {
-                new WordData { japanese = "りんご", english = "Apple" },
-                new WordData { japanese = "犬", english = "Dog" },
-                new WordData { japanese = "猫", english = "Cat" },
-                new WordData { japanese = "本", english = "Book" },
-                new WordData { japanese = "学校", english = "School" },
-                new WordData { japanese = "水", english = "Water" },
-                new WordData { japanese = "車", english = "Car" },
-                new WordData { japanese = "電車", english = "Train" },
-                new WordData { japanese = "飛行機", english = "Airplane" },
-                new WordData { japanese = "コンピュータ", english = "Computer" },
-                new WordData { japanese = "先生", english = "Teacher" },
-                new WordData { japanese = "学生", english = "Student" },
-                new WordData { japanese = "友達", english = "Friend" },
-                new WordData { japanese = "家族", english = "Family" },
-                new WordData { japanese = "家", english = "House" }
-            };
+            asset.words = WordDatabaseManager.GetWordsByLevel(level);
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.SaveAssets();
+            Debug.Log($"Created WordList for Level {levelName} with {asset.words.Count} words");
         }
         return asset;
+    }
+
+    /// <summary>
+    /// 全レベルのWordListアセットを一括作成
+    /// </summary>
+    [MenuItem("Tools/Create All Word Lists")]
+    public static void CreateAllWordLists()
+    {
+        CreateWordListForLevel(WordLevel.Level400);
+        CreateWordListForLevel(WordLevel.Level600);
+        CreateWordListForLevel(WordLevel.Level800);
+        Debug.Log("All Word Lists created! (400, 600, 800 levels - 100 words each)");
     }
 
     private static GameObject SetupCanvas()
