@@ -201,13 +201,13 @@ public class GameManager : MonoBehaviour
                 if (card != null)
                 {
                     string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
-                    string questionText = currentRoundWords[slot.slotIndex].japanese;
-                    card.SetText($"{answerText}\n({questionText})");
+                    string questionText = reverseMode ? currentRoundWords[slot.slotIndex].english : currentRoundWords[slot.slotIndex].japanese;
+                    card.SetText($"{answerText}\n(問題:{questionText})");
                 }
             }
         }
 
-        if (statusText != null) statusText.text = $"Stage 2: {correctCount} / 15 Correct! Rearrange or Check Answer";
+        if (statusText != null) statusText.text = $"Stage 2: {correctCount} / 15 正解 並べ替え中...";
     }
 
     public void OnCardClicked(DraggableCard clickedCard)
@@ -293,21 +293,21 @@ public class GameManager : MonoBehaviour
                     if (card != null)
                     {
                         string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
-                        string questionText = currentRoundWords[slot.slotIndex].japanese;
-                        card.SetText($"{answerText}\n({questionText})");
+                        string questionText = reverseMode ? currentRoundWords[slot.slotIndex].english : currentRoundWords[slot.slotIndex].japanese;
+                        card.SetText($"{answerText}\n(問題:{questionText})");
                     }
                 }
             }
 
             stage1Score = correctCount;
             currentState = GameState.Check1;
-            if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 15 Correct! Rearrange cards for Stage 2";
+            if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 15 正解！ カードを並べ替えてStage 2に挑戦";
 
-            // Button text changes to Check Answer for final result
+            // Button text changes to finish Stage 2
             if (checkButton != null)
             {
                 Text buttonText = checkButton.GetComponentInChildren<Text>();
-                if (buttonText != null) buttonText.text = "Check Answer";
+                if (buttonText != null) buttonText.text = "Stage 2 終了";
             }
         }
         else if (currentState == GameState.Check1)
@@ -336,20 +336,20 @@ public class GameManager : MonoBehaviour
                     if (card != null)
                     {
                         string answerText = reverseMode ? currentRoundWords[card.originalIndex].japanese : currentRoundWords[card.originalIndex].english;
-                        string questionText = currentRoundWords[slot.slotIndex].japanese;
-                        card.SetText($"{answerText}\n({questionText})");
+                        string questionText = reverseMode ? currentRoundWords[slot.slotIndex].english : currentRoundWords[slot.slotIndex].japanese;
+                        card.SetText($"{answerText}\n(問題:{questionText})");
                     }
                 }
             }
 
             currentState = GameState.Result;
-            if (statusText != null) statusText.text = $"Final: Stage1 {stage1Score}/15 → Stage2 {correctCount}/15";
+            if (statusText != null) statusText.text = $"結果: Stage1 {stage1Score}/15 → Stage2 {correctCount}/15";
 
             // Change button text to Restart
             if (checkButton != null)
             {
                 Text buttonText = checkButton.GetComponentInChildren<Text>();
-                if (buttonText != null) buttonText.text = "Restart Game";
+                if (buttonText != null) buttonText.text = "もう一度";
             }
         }
         else if (currentState == GameState.Result)
