@@ -200,7 +200,7 @@
         let currentSessionWords = [];
         let timer = 10;
         let timerInterval;
-        let gameState = 'MEMORIZE'; // MEMORIZE, SOLVE, CHECK1, SOLVE2, RESULT
+        let gameState = 'MEMORIZE'; // MEMORIZE, SOLVE, CHECK1, RESULT
         let selectedCard = null;
         let stage1Score = 0;
 
@@ -317,17 +317,15 @@
                 card.classList.remove('correct');
                 card.classList.remove('incorrect');
             });
-            if (gameState === 'SOLVE2') {
-                statusText.textContent = "Stage 2: Arrange again using hints!";
-            } else {
-                statusText.textContent = reverseModeToggle.checked ? "Arrange the Japanese words!" : "Arrange the English words!";
-            }
+            statusText.textContent = reverseModeToggle.checked ? "Arrange the Japanese words!" : "Arrange the English words!";
         }
 
         function handleDragStart(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'CHECK1') return;
 
-            clearFeedback();
+            if (gameState === 'SOLVE') {
+                clearFeedback();
+            }
 
             // Clear any selected card if dragging starts
             if (selectedCard) {
@@ -341,24 +339,24 @@
         }
 
         function handleDragOver(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'CHECK1') return;
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         }
 
         function handleDragEnter(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'CHECK1') return;
             e.preventDefault();
             this.classList.add('drag-over');
         }
 
         function handleDragLeave(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'CHECK1') return;
             this.classList.remove('drag-over');
         }
 
         function handleDrop(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'CHECK1') return;
             e.preventDefault();
             this.classList.remove('drag-over');
 
@@ -380,6 +378,11 @@
 
             // Move draggedCard to targetSlot
             targetSlot.appendChild(draggedCard);
+
+            // Update feedback if in CHECK1 state (Stage 2)
+            if (gameState === 'CHECK1') {
+                updateCardFeedback();
+            }
         }
 
         function handleDragEnd(e) {
@@ -388,7 +391,7 @@
         }
 
         function handleCardClick(e) {
-            if (gameState !== 'SOLVE' && gameState !== 'SOLVE2') return;
+            if (gameState !== 'SOLVE' && gameState !== 'CHECK1') return;
 
             const clickedCard = e.currentTarget;
 
@@ -412,7 +415,9 @@
 
             // Swap the cards in the DOM
             if (sourceSlot && targetSlot) {
-                clearFeedback(); // Clear feedback on swap
+                if (gameState === 'SOLVE') {
+                    clearFeedback(); // Clear feedback on swap in SOLVE state
+                }
                 sourceSlot.appendChild(clickedCard);
                 targetSlot.appendChild(selectedCard);
             }
@@ -420,6 +425,11 @@
             // Clear selection and styling
             selectedCard.classList.remove('selected');
             selectedCard = null;
+
+            // Update feedback if in CHECK1 state (Stage 2)
+            if (gameState === 'CHECK1') {
+                updateCardFeedback();
+            }
         }
 
         function checkAnswer() {
@@ -456,14 +466,10 @@
 
                 stage1Score = correctCount;
                 gameState = 'CHECK1';
-                statusText.textContent = `Stage 1: ${correctCount} / ${wordsData.length} Correct! Press button to start Stage 2`;
-                checkBtn.textContent = 'Start Stage 2';
+                statusText.textContent = `Stage 1: ${correctCount} / ${wordsData.length} 正解！ カードを並べ替えてStage 2に挑戦`;
+                checkBtn.textContent = 'Stage 2 終了';
 
             } else if (gameState === 'CHECK1') {
-                // Transition to Stage 2
-                startSolve2Phase();
-
-            } else if (gameState === 'SOLVE2') {
                 // Stage 2: Final check
                 let correctCount = 0;
                 const slots = document.querySelectorAll('.slot');
@@ -495,8 +501,8 @@
                 });
 
                 gameState = 'RESULT';
-                statusText.textContent = `Final: Stage1 ${stage1Score}/${wordsData.length} → Stage2 ${correctCount}/${wordsData.length}`;
-                checkBtn.textContent = 'Restart Game';
+                statusText.textContent = `結果: Stage1 ${stage1Score}/${wordsData.length} → Stage2 ${correctCount}/${wordsData.length}`;
+                checkBtn.textContent = 'もう一度';
 
             } else if (gameState === 'RESULT') {
                 // Restart the game
@@ -505,27 +511,39 @@
             }
         }
 
-        function startSolve2Phase() {
-            gameState = 'SOLVE2';
-            statusText.textContent = 'Stage 2: Arrange again using hints!';
-            checkBtn.textContent = 'Check Answer';
+        // Update card colors and status text during Stage 2 rearrangement
+        function updateCardFeedback() {
+            let correctCount = 0;
+            const slots = document.querySelectorAll('.slot');
+            const isReverse = reverseModeToggle.checked;
 
-            // Reset card colors and keep showing answer with question
-            cards.forEach(card => {
-                card.classList.remove('correct');
-                card.classList.remove('incorrect');
+            slots.forEach(slot => {
+                const card = slot.querySelector('.card');
+                const slotIndex = parseInt(slot.dataset.index);
 
-                const originalIndex = parseInt(card.dataset.originalIndex);
-                const word = currentSessionWords[originalIndex];
-                const questionText = word.jp;
-                const isReverse = reverseModeToggle.checked;
-                const answerText = isReverse ? word.jp : word.en;
+                if (card) {
+                    const originalIndex = parseInt(card.dataset.originalIndex);
 
-                card.innerHTML = `<div style="text-align: center;">${answerText}<br><small style="color: #555;">(${questionText})</small></div>`;
+                    if (originalIndex === slotIndex) {
+                        correctCount++;
+                        card.classList.add('correct');
+                        card.classList.remove('incorrect');
+                    } else {
+                        card.classList.add('incorrect');
+                        card.classList.remove('correct');
+                    }
+
+                    // Update text with slot's original question
+                    const word = currentSessionWords[originalIndex];
+                    const slotWord = currentSessionWords[slotIndex];
+                    const answerText = isReverse ? word.jp : word.en;
+                    const questionText = isReverse ? slotWord.en : slotWord.jp;
+
+                    card.innerHTML = `<div style="text-align: center;">${answerText}<br><small style="color: #555;">(問題:${questionText})</small></div>`;
+                }
             });
 
-            // Shuffle cards for second attempt
-            shuffleCards();
+            statusText.textContent = `Stage 2: ${correctCount} / ${wordsData.length} 正解 並べ替え中...`;
         }
 
         function resetGame() {
