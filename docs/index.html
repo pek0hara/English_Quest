@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unity English Word Learning App</title>
+    <script src="words-400.js"></script>
+    <script src="words-600.js"></script>
+    <script src="words-800.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -157,6 +160,15 @@
     <header>
         <h1>English Word Learning Game</h1>
         <div style="margin-bottom: 10px;">
+            <label for="difficulty-select">難易度: </label>
+            <select id="difficulty-select" onchange="resetGame()">
+                <option value="400">TOEIC 400 (基礎)</option>
+                <option value="600">TOEIC 600 (中級)</option>
+                <option value="800">TOEIC 800 (上級)</option>
+                <option value="all">全レベル混合</option>
+            </select>
+        </div>
+        <div style="margin-bottom: 10px;">
             <label><input type="checkbox" id="reverse-mode-toggle" onchange="resetGame()"> Reverse Mode (English &rarr; Japanese)</label>
         </div>
         <p id="status-text">Loading...</p>
@@ -178,24 +190,36 @@
     </div>
 
     <script>
-        const wordsData = [
-            { jp: "りんご", en: "Apple" },
-            { jp: "本", en: "Book" },
-            { jp: "猫", en: "Cat" },
-            { jp: "犬", en: "Dog" },
-            { jp: "卵", en: "Egg" },
-            { jp: "魚", en: "Fish" },
-            { jp: "女の子", en: "Girl" },
-            { jp: "手", en: "Hand" },
-            { jp: "氷", en: "Ice" },
-            { jp: "ジャンプ", en: "Jump" },
-            { jp: "凧", en: "Kite" },
-            { jp: "ライオン", en: "Lion" },
-            { jp: "月", en: "Moon" },
-            { jp: "鼻", en: "Nose" },
-            { jp: "オレンジ", en: "Orange" }
-        ];
+        const WORDS_PER_GAME = 15;
 
+        // Get words based on selected difficulty
+        function getWordsByDifficulty(difficulty) {
+            switch (difficulty) {
+                case '400':
+                    return [...wordsLevel400];
+                case '600':
+                    return [...wordsLevel600];
+                case '800':
+                    return [...wordsLevel800];
+                case 'all':
+                    return [...wordsLevel400, ...wordsLevel600, ...wordsLevel800];
+                default:
+                    return [...wordsLevel400];
+            }
+        }
+
+        // Get random words from the word pool
+        function getRandomWords(wordPool, count) {
+            const shuffled = [...wordPool];
+            // Fisher-Yates shuffle
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled.slice(0, count);
+        }
+
+        let wordsData = [];
         let cards = [];
         let currentSessionWords = [];
         let timer = 10;
@@ -209,6 +233,7 @@
         const timerText = document.getElementById('timer-text');
         const checkBtn = document.getElementById('check-btn');
         const reverseModeToggle = document.getElementById('reverse-mode-toggle');
+        const difficultySelect = document.getElementById('difficulty-select');
 
         let draggedCard = null;
 
@@ -217,9 +242,14 @@
             gameState = 'MEMORIZE';
             timer = 10;
             cards = [];
+
+            // Get words based on selected difficulty and pick random words
+            const difficulty = difficultySelect.value;
+            const wordPool = getWordsByDifficulty(difficulty);
+            wordsData = getRandomWords(wordPool, WORDS_PER_GAME);
             currentSessionWords = [...wordsData];
 
-            // Shuffle the words for this session
+            // Shuffle the words for this session (for display order)
             for (let i = currentSessionWords.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [currentSessionWords[i], currentSessionWords[j]] = [currentSessionWords[j], currentSessionWords[i]];
@@ -466,7 +496,7 @@
 
                 stage1Score = correctCount;
                 gameState = 'CHECK1';
-                statusText.textContent = `Stage 1: ${correctCount} / ${wordsData.length} 正解！ カードを並べ替えてStage 2に挑戦`;
+                statusText.textContent = `Stage 1: ${correctCount} / ${WORDS_PER_GAME} 正解！ カードを並べ替えてStage 2に挑戦`;
                 checkBtn.textContent = 'Stage 2 終了';
 
             } else if (gameState === 'CHECK1') {
@@ -501,7 +531,7 @@
                 });
 
                 gameState = 'RESULT';
-                statusText.textContent = `結果: Stage1 ${stage1Score}/${wordsData.length} → Stage2 ${correctCount}/${wordsData.length}`;
+                statusText.textContent = `結果: Stage1 ${stage1Score}/${WORDS_PER_GAME} → Stage2 ${correctCount}/${WORDS_PER_GAME}`;
                 checkBtn.textContent = 'もう一度';
 
             } else if (gameState === 'RESULT') {
@@ -543,7 +573,7 @@
                 }
             });
 
-            statusText.textContent = `Stage 2: ${correctCount} / ${wordsData.length} 正解 並べ替え中...`;
+            statusText.textContent = `Stage 2: ${correctCount} / ${WORDS_PER_GAME} 正解 並べ替え中...`;
         }
 
         function resetGame() {
