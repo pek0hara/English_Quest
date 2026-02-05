@@ -1,7 +1,7 @@
 # Unity English Word Learning App
 
 This project contains the scripts to create a Unity-based English word learning application.
-The app displays a 3x5 grid of Japanese words for 10 seconds (Memorize Phase), then switches to randomized English words that the user must rearrange to match the original positions (Solve Phase).
+The app displays a 3x3 grid of Japanese words for 10 seconds (Memorize Phase), then switches to randomized English words that the user must rearrange to match the original positions (Solve Phase).
 
 ## Setup Instructions
 
@@ -61,7 +61,7 @@ Select the `GameManager` object and assign the references in the Inspector:
 ### 5. Create Word Data
 1. In the Project window, right-click -> Create -> Word List.
 2. Select the new `NewWordList` file.
-3. In the Inspector, set the Size of `Words` to **15** (or more).
+3. In the Inspector, set the Size of `Words` to **9** (or more).
 4. Fill in the Japanese and English fields for each element.
 5. Drag this `NewWordList` asset to the `Word List` field in the `GameManager`.
 
