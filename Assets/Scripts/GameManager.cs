@@ -69,9 +69,9 @@ public class GameManager : MonoBehaviour
         cards.Clear();
 
         // Ensure we have enough words
-        if (wordList == null || wordList.words.Count < 15)
+        if (wordList == null || wordList.words.Count < 9)
         {
-            Debug.LogError("Not enough words in WordList! Need at least 15.");
+            Debug.LogError("Not enough words in WordList! Need at least 9.");
             return;
         }
 
@@ -86,8 +86,8 @@ public class GameManager : MonoBehaviour
             currentRoundWords[randomIndex] = temp;
         }
 
-        // Create 15 slots and cards
-        for (int i = 0; i < 15; i++)
+        // Create 9 slots and cards
+        for (int i = 0; i < 9; i++)
         {
             // Instantiate Slot
             GameObject slotObj = Instantiate(slotPrefab, gridParent);
@@ -154,7 +154,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Re-parent them to slots based on new order
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 9; i++)
         {
             DraggableCard card = cards[i];
             CardSlot slot = slots[i];
@@ -207,7 +207,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (statusText != null) statusText.text = $"Stage 2: {correctCount} / 15 正解 並べ替え中...";
+        if (statusText != null) statusText.text = $"Stage 2: {correctCount} / 9 正解 並べ替え中...";
     }
 
     public void OnCardClicked(DraggableCard clickedCard)
@@ -301,7 +301,7 @@ public class GameManager : MonoBehaviour
 
             stage1Score = correctCount;
             currentState = GameState.Check1;
-            if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 15 正解！ カードを並べ替えてStage 2に挑戦";
+            if (statusText != null) statusText.text = $"Stage 1: {correctCount} / 9 正解！ カードを並べ替えてStage 2に挑戦";
 
             // Button text changes to finish Stage 2
             if (checkButton != null)
@@ -343,7 +343,7 @@ public class GameManager : MonoBehaviour
             }
 
             currentState = GameState.Result;
-            if (statusText != null) statusText.text = $"結果: Stage1 {stage1Score}/15 → Stage2 {correctCount}/15";
+            if (statusText != null) statusText.text = $"結果: Stage1 {stage1Score}/9 → Stage2 {correctCount}/9";
 
             // Change button text to Restart
             if (checkButton != null)
