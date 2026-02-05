@@ -1,16 +1,11 @@
 using System.Collections.Generic;
 
-/// <summary>
-/// TOEIC 800点レベル - 上級単語（100語）
-/// 専門ビジネス・抽象概念・高度な表現
-/// </summary>
-public static class WordDatabase800
+public class WordDatabase400
 {
     public static List<WordData> GetWords()
     {
         return new List<WordData>
         {
-            // 経営・財務上級 (1-20)
             new WordData { japanese = "買収", english = "acquisition" },
             new WordData { japanese = "合併", english = "merger" },
             new WordData { japanese = "子会社", english = "subsidiary" },
@@ -31,8 +26,6 @@ public static class WordDatabase800
             new WordData { japanese = "説明責任", english = "accountability" },
             new WordData { japanese = "企業統治", english = "governance" },
             new WordData { japanese = "内部統制", english = "internal control" },
-
-            // 法務・契約 (21-40)
             new WordData { japanese = "訴訟", english = "litigation" },
             new WordData { japanese = "和解", english = "settlement" },
             new WordData { japanese = "仲裁", english = "arbitration" },
@@ -53,8 +46,6 @@ public static class WordDatabase800
             new WordData { japanese = "権利放棄", english = "waiver" },
             new WordData { japanese = "履行", english = "fulfillment" },
             new WordData { japanese = "拘束力", english = "binding" },
-
-            // 戦略・経営手法 (41-60)
             new WordData { japanese = "多角化", english = "diversification" },
             new WordData { japanese = "統合", english = "integration" },
             new WordData { japanese = "外部委託", english = "outsourcing" },
@@ -75,8 +66,6 @@ public static class WordDatabase800
             new WordData { japanese = "基準", english = "benchmark" },
             new WordData { japanese = "指標", english = "indicator" },
             new WordData { japanese = "測定基準", english = "metrics" },
-
-            // 専門・技術用語 (61-80)
             new WordData { japanese = "インフラ", english = "infrastructure" },
             new WordData { japanese = "帯域幅", english = "bandwidth" },
             new WordData { japanese = "暗号化", english = "encryption" },
@@ -86,7 +75,6 @@ public static class WordDatabase800
             new WordData { japanese = "試作品", english = "prototype" },
             new WordData { japanese = "実現可能性", english = "feasibility" },
             new WordData { japanese = "仕様", english = "specification" },
-            new WordData { japanese = "統合", english = "integration" },
             new WordData { japanese = "移行", english = "migration" },
             new WordData { japanese = "展開", english = "deployment" },
             new WordData { japanese = "保守性", english = "maintainability" },
@@ -97,8 +85,6 @@ public static class WordDatabase800
             new WordData { japanese = "待ち時間", english = "latency" },
             new WordData { japanese = "障害", english = "malfunction" },
             new WordData { japanese = "復旧", english = "recovery" },
-
-            // 抽象概念・高度表現 (81-100)
             new WordData { japanese = "包括的", english = "comprehensive" },
             new WordData { japanese = "暫定的", english = "provisional" },
             new WordData { japanese = "相互の", english = "mutual" },
@@ -119,13 +105,8 @@ public static class WordDatabase800
             new WordData { japanese = "一時的", english = "temporary" },
             new WordData { japanese = "相対的", english = "relative" },
             new WordData { japanese = "絶対的", english = "absolute" },
-            new WordData { japanese = "合併", english = "merger" },
-            new WordData { japanese = "買収", english = "acquisition" },
-            new WordData { japanese = "子会社", english = "subsidiary" },
             new WordData { japanese = "本社", english = "headquarters" },
             new WordData { japanese = "取締役会", english = "board of directors" },
-            new WordData { japanese = "株主", english = "shareholder" },
-            new WordData { japanese = "利害関係者", english = "stakeholder" },
             new WordData { japanese = "独占", english = "monopoly" },
             new WordData { japanese = "寡占", english = "oligopoly" },
             new WordData { japanese = "コングロマリット", english = "conglomerate" },
@@ -133,46 +114,25 @@ public static class WordDatabase800
             new WordData { japanese = "提携", english = "alliance" },
             new WordData { japanese = "提携", english = "partnership" },
             new WordData { japanese = "協力", english = "collaboration" },
-            new WordData { japanese = "相乗効果", english = "synergy" },
-            new WordData { japanese = "多様化", english = "diversification" },
-            new WordData { japanese = "再編", english = "restructuring" },
-            new WordData { japanese = "倒産", english = "bankruptcy" },
             new WordData { japanese = "清算", english = "liquidation" },
             new WordData { japanese = "債務不履行", english = "default" },
-            new WordData { japanese = "監査", english = "audit" },
             new WordData { japanese = "コンプライアンス", english = "compliance" },
-            new WordData { japanese = "統治", english = "governance" },
-            new WordData { japanese = "透明性", english = "transparency" },
-            new WordData { japanese = "説明責任", english = "accountability" },
             new WordData { japanese = "倫理", english = "ethics" },
             new WordData { japanese = "誠実", english = "integrity" },
             new WordData { japanese = "評判", english = "reputation" },
             new WordData { japanese = "信用", english = "credibility" },
             new WordData { japanese = "名声", english = "prestige" },
-            new WordData { japanese = "革新", english = "innovation" },
             new WordData { japanese = "画期的", english = "breakthrough" },
             new WordData { japanese = "最先端", english = "cutting-edge" },
             new WordData { japanese = "最先端", english = "state-of-the-art" },
-            new WordData { japanese = "特許", english = "patent" },
-            new WordData { japanese = "商標", english = "trademark" },
-            new WordData { japanese = "著作権", english = "copyright" },
-            new WordData { japanese = "知的財産", english = "intellectual property" },
             new WordData { japanese = "ライセンス", english = "license" },
             new WordData { japanese = "使用料", english = "royalty" },
             new WordData { japanese = "研究開発", english = "R&D" },
-            new WordData { japanese = "試作品", english = "prototype" },
-            new WordData { japanese = "仕様", english = "specification" },
-            new WordData { japanese = "標準化", english = "standardization" },
-            new WordData { japanese = "最適化", english = "optimization" },
             new WordData { japanese = "効率化", english = "efficiency" },
             new WordData { japanese = "生産性", english = "productivity" },
-            new WordData { japanese = "収益性", english = "profitability" },
-            new WordData { japanese = "持続可能性", english = "sustainability" },
-            new WordData { japanese = "実行可能性", english = "feasibility" },
             new WordData { japanese = "物流", english = "logistics" },
             new WordData { japanese = "サプライチェーン", english = "supply chain" },
             new WordData { japanese = "調達", english = "procurement" },
-            new WordData { japanese = "外部委託", english = "outsourcing" },
             new WordData { japanese = "海外移転", english = "offshoring" },
             new WordData { japanese = "在庫管理", english = "inventory control" },
             new WordData { japanese = "品質管理", english = "quality control" },
@@ -185,7 +145,6 @@ public static class WordDatabase800
             new WordData { japanese = "デフレ", english = "deflation" },
             new WordData { japanese = "不況", english = "recession" },
             new WordData { japanese = "恐慌", english = "depression" },
-            new WordData { japanese = "回復", english = "recovery" },
             new WordData { japanese = "拡大", english = "expansion" },
             new WordData { japanese = "縮小", english = "contraction" },
             new WordData { japanese = "停滞", english = "stagnation" },
@@ -201,15 +160,11 @@ public static class WordDatabase800
             new WordData { japanese = "債券", english = "bond" },
             new WordData { japanese = "利回り", english = "yield" },
             new WordData { japanese = "満期", english = "maturity" },
-            new WordData { japanese = "償還", english = "redemption" },
-            new WordData { japanese = "流動性", english = "liquidity" },
             new WordData { japanese = "支払能力", english = "solvency" },
-            new WordData { japanese = "担保", english = "collateral" },
             new WordData { japanese = "住宅ローン", english = "mortgage" },
             new WordData { japanese = "分割払い", english = "installment" },
             new WordData { japanese = "延滞", english = "overdue" },
             new WordData { japanese = "差し押さえ", english = "foreclosure" },
-            new WordData { japanese = "訴訟", english = "litigation" },
             new WordData { japanese = "訴訟", english = "lawsuit" },
             new WordData { japanese = "原告", english = "plaintiff" },
             new WordData { japanese = "被告", english = "defendant" },
@@ -220,9 +175,6 @@ public static class WordDatabase800
             new WordData { japanese = "評決", english = "verdict" },
             new WordData { japanese = "判決", english = "sentence" },
             new WordData { japanese = "控訴", english = "appeal" },
-            new WordData { japanese = "仲裁", english = "arbitration" },
-            new WordData { japanese = "調停", english = "mediation" },
-            new WordData { japanese = "解決", english = "settlement" },
             new WordData { japanese = "損害賠償", english = "damages" },
             new WordData { japanese = "責任", english = "liability" },
             new WordData { japanese = "過失", english = "negligence" },
@@ -239,7 +191,6 @@ public static class WordDatabase800
             new WordData { japanese = "条約", english = "treaty" },
             new WordData { japanese = "議定書", english = "protocol" },
             new WordData { japanese = "批准", english = "ratification" },
-            new WordData { japanese = "制裁", english = "sanction" },
             new WordData { japanese = "禁輸", english = "embargo" },
             new WordData { japanese = "関税", english = "tariff" },
             new WordData { japanese = "割り当て", english = "quota" },
@@ -308,18 +259,14 @@ public static class WordDatabase800
             new WordData { japanese = "能力", english = "competence" },
             new WordData { japanese = "熟練", english = "proficiency" },
             new WordData { japanese = "専門知識", english = "expertise" },
-            new WordData { japanese = "習得", english = "acquisition" },
             new WordData { japanese = "保持", english = "retention" },
             new WordData { japanese = "想起", english = "recall" },
             new WordData { japanese = "認識", english = "recognition" },
             new WordData { japanese = "識別", english = "identification" },
             new WordData { japanese = "区別", english = "distinction" },
-            new WordData { japanese = "差別化", english = "differentiation" },
-            new WordData { japanese = "統合", english = "integration" },
             new WordData { japanese = "同化", english = "assimilation" },
             new WordData { japanese = "適応", english = "adaptation" },
             new WordData { japanese = "調整", english = "adjustment" },
-            new WordData { japanese = "修正", english = "modification" },
             new WordData { japanese = "変更", english = "alteration" },
             new WordData { japanese = "変換", english = "transformation" },
             new WordData { japanese = "移行", english = "transition" },
@@ -400,7 +347,6 @@ public static class WordDatabase800
             new WordData { japanese = "要素", english = "element" },
             new WordData { japanese = "構成要素", english = "component" },
             new WordData { japanese = "構造", english = "structure" },
-            new WordData { japanese = "インフラ", english = "infrastructure" },
             new WordData { japanese = "枠組み", english = "framework" },
             new WordData { japanese = "システム", english = "system" },
             new WordData { japanese = "メカニズム", english = "mechanism" },
@@ -470,7 +416,6 @@ public static class WordDatabase800
             new WordData { japanese = "妥協", english = "compromise" },
             new WordData { japanese = "譲歩", english = "concession" },
             new WordData { japanese = "膠着状態", english = "deadlock" },
-            new WordData { japanese = "打開策", english = "breakthrough" },
             new WordData { japanese = "調印", english = "signing" },
             new WordData { japanese = "締結", english = "conclusion" },
             new WordData { japanese = "条項", english = "clause" },
@@ -521,7 +466,7 @@ public static class WordDatabase800
             new WordData { japanese = "時価総額", english = "market cap" },
             new WordData { japanese = "配当利回り", english = "dividend yield" },
             new WordData { japanese = "脱税", english = "tax evasion" },
-            new WordData { japanese = "マネーロンダリング", english = "money laundering" },
+            new WordData { japanese = "マネーロンダリング", english = "money laundering" }
         };
     }
 }
