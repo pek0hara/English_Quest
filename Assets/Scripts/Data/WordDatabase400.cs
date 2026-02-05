@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public class WordDatabase400
+public static class WordDatabase400
 {
     public static List<WordData> GetWords()
     {
